@@ -20,7 +20,6 @@
       </div>
     </div>
     <div><button v-on:click="logout">Logout</button></div>
-
   </div>
 </template>
 

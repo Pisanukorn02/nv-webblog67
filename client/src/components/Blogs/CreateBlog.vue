@@ -1,11 +1,16 @@
 <template>
   <div>
-    <h1>Create Blog</h1>
+    <h1>Create item</h1>
     <form v-on:submit.prevent="createBlog">
       <p>
-        title:
+        Item:
         <input type="text" v-model="blog.title" />
       </p>
+      <p>
+        Part_name:
+        <input type="text" v-model="blog.Part_id" />
+      </p>
+      
       <transition name="fade">
         <div class="thumbnail-pic" v-if="blog.thumbnail != 'null'">
           <img :src="BASE_URL + blog.thumbnail" alt="thumbnail" />
@@ -25,7 +30,6 @@
             accept="image/*"
             class="input-file"
           />
-          <!-- <p v-if="isInitial || isSuccess"> -->
           <p v-if="isInitial">
             Drag your file(s) here to begin<br />
             or click to browse
@@ -52,7 +56,7 @@
         <div class="clearfix"></div>
       </div>
       <p>
-        <strong>content:</strong>
+        <strong>Comment:</strong>
       </p>
       <vue-ckeditor
         v-model.lazy="blog.content"
@@ -61,19 +65,20 @@
         @focus="onFocus($event)"
       />
       <p>
-        category:
+        Category:
         <input type="text" v-model="blog.category" />
       </p>
       <p>
-        status:
+        Price:
         <input type="text" v-model="blog.status" />
       </p>
       <p>
-        <button type="submit">create blog</button>
+        <button type="submit">Create Object</button>
       </p>
     </form>
   </div>
 </template>
+
 <script>
 import BlogsService from "@/services/BlogsService";
 import VueCkeditor from "vue-ckeditor2";
@@ -89,7 +94,6 @@ export default {
     return {
       BASE_URL: "http://localhost:8081/assets/uploads/",
       error: null,
-      // uploadedFiles: [],
       uploadError: null,
       currentStatus: null,
       uploadFieldName: "userPhoto",
@@ -103,6 +107,7 @@ export default {
         content: "",
         category: "",
         status: "saved",
+        Part_id: "", // เพิ่มบรรทัดนี้
       },
       config: {
         toolbar: [
@@ -124,7 +129,7 @@ export default {
         for (var i = 0; i < this.pictures.length; i++) {
           if (this.pictures[i].id === material.id) {
             this.pictures.splice(i, 1);
-            this.materialIndex--;
+            this.pictureIndex--; // เปลี่ยนจาก this.materialIndex เป็น this.pictureIndex
             break;
           }
         }
@@ -160,7 +165,6 @@ export default {
     reset() {
       // reset form to initial state
       this.currentStatus = STATUS_INITIAL;
-      // this.uploadedFiles = []
       this.uploadError = null;
       this.uploadedFileNames = [];
     },
@@ -172,15 +176,8 @@ export default {
         this.currentStatus = STATUS_SUCCESS;
 
         // update image uploaded display
-        let pictureJSON = [];
         this.uploadedFileNames.forEach((uploadFilename) => {
-          let found = false;
-          for (let i = 0; i < this.pictures.length; i++) {
-            if (this.pictures[i].name == uploadFilename) {
-              found = true;
-              break;
-            }
-          }
+          let found = this.pictures.some(picture => picture.name === uploadFilename);
           if (!found) {
             this.pictureIndex++;
             let pictureJSON = {
@@ -201,14 +198,14 @@ export default {
       const formData = new FormData();
       if (!fileList.length) return;
       // append the files to FormData
-      Array.from(Array(fileList.length).keys()).map((x) => {
-        formData.append(fieldName, fileList[x], fileList[x].name);
-        this.uploadedFileNames.push(fileList[x].name);
+      Array.from(fileList).forEach(file => {
+        formData.append(fieldName, file, file.name);
+        this.uploadedFileNames.push(file.name);
       });
       // save it
       this.save(formData);
     },
-    clearUploadResult: function () {
+    clearUploadResult() {
       setTimeout(() => this.reset(), 5000);
     },
     useThumbnail(filename) {
@@ -341,6 +338,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .dropbox {
   outline: 2px dashed grey; /* the dash box */
@@ -361,8 +359,7 @@ export default {
 }
 
 .dropbox:hover {
-  background: khaki; /* when mouse over to the drop zone, change color 
-*/
+  background: khaki; /* when mouse over to the drop zone, change color */
 }
 
 .dropbox p {
