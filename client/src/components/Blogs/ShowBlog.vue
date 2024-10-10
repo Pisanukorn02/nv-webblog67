@@ -6,7 +6,9 @@
         <p>content: {{ blog.content }}</p>
         <p>category: {{ blog.category }}</p>
         <p>status: {{ blog.status }}</p>
-        <p>status: {{ blog.status }}</p>
+        <p>status: {{ blog.PartName }}</p>
+
+
         <p>
         <button v-on:click="navigateTo('/blog/edit/'+ blog.id)">แก้ไข
         blog</button>

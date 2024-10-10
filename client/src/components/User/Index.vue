@@ -11,6 +11,7 @@
         <div><b>อีเมล:</b> {{ user.email }}</div>
         <div><b>status:</b> {{ user.status }}</div>
         <div><b>type:</b> {{ user.type }}</div>
+        
         <div>
           <button v-on:click="navigateTo('/user/'+user.id)">ดูข้อมูล</button>
           <button v-on:click="navigateTo('/user/edit/'+user.id)">แก้ไขข้อมูล</button>

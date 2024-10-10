@@ -3,13 +3,16 @@
     <h1>Create item</h1>
     <form v-on:submit.prevent="createBlog">
       <p>
-        Item:
+        Name :
         <input type="text" v-model="blog.title" />
       </p>
+     
       <p>
-        Part_name:
-        <input type="text" v-model="blog.Part_id" />
+      PartName :
+        <input type="text" v-model="blog.PartName" />
       </p>
+     
+      
       
       <transition name="fade">
         <div class="thumbnail-pic" v-if="blog.thumbnail != 'null'">
@@ -107,7 +110,7 @@ export default {
         content: "",
         category: "",
         status: "saved",
-        Part_id: "", // เพิ่มบรรทัดนี้
+        part_id: null,  // เพิ่มส่วนนี้
       },
       config: {
         toolbar: [

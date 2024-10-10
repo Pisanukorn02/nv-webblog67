@@ -1,7 +1,11 @@
+
 <template>
     <div>
         <div class="blog-header">
             <h2>ส่วนจัดการบล๊อก</h2>
+            <form>
+ <input type="text" v-model="search" placeholder="Search">
+ </form>
             <div>
                 <button v-on:click="navigateTo('/blog/create')">สร้างบล็อก</button>
                 <strong> จำนวนบล็อก: </strong> {{ blogs.length }}
@@ -20,24 +24,25 @@
                     </div>
                 </transition> 
             </div>
-            <h3>{{ blog.title }}</h3>
-            <div v-html="blog.content.slice(0,200) + '...'"></div> 
-            <div class="blog-info">
-                <p><strong>Category:</strong> {{ blog.category }}</p>
-                <p><strong>Create:</strong> {{ formatDate(blog.createdAt) }}</p>
-                <!-- แสดง Pictures ถ้ามี -->
-                <div v-if="blog.pictures && blog.pictures !== 'null'" class="additional-pictures">
-                    <h4>รูปเพิ่มเติม:</h4>
+ <div v-if="blog.pictures && blog.pictures !== 'null'" class="additional-pictures">
                     <ul>
                         <li v-for="picture in blog.picturesArray" :key="picture.id">
                             <img :src="BASE_URL + picture.name" alt="Picture">
                         </li>
                     </ul>
                 </div>
+            <h3>{{ blog.title }}</h3>
+            <h3>{{ blog.PartName }}</h3>
+            <div v-html="blog.content.slice(0,200) + '...'"></div> 
+            <div class="blog-info">
+                <p><strong>Category:</strong> {{ blog.category }}</p>
+                <p><strong>Stock date :</strong> {{ formatDate(blog.createdAt) }}</p>
+                <!-- แสดง Pictures ถ้ามี -->
+                
                 <p>
-                    <button v-on:click="navigateTo('/blog/' + blog.id)">ดูบล็อก</button>
-                    <button v-on:click="navigateTo('/blog/edit/' + blog.id)">แก้ไขบล็อก</button>
-                    <button v-on:click="deleteBlog(blog)">ลบข้อมูล</button>
+                    <button class="view-button" v-on:click="navigateTo('/blog/' + blog.id)">ดูบล็อก</button>
+                    <button class="edit-button" v-on:click="navigateTo('/blog/edit/' + blog.id)">แก้ไขบล็อก</button>
+                    <button class="delete-button" v-on:click="deleteBlog(blog)">ลบข้อมูล</button>
                 </p>
             </div>
             <div class="clearfix"></div> 
@@ -47,16 +52,18 @@
 
 <script>
 import BlogsService from '@/services/BlogsService'
+import _ from 'lodash'
 
 export default {
     data () {
         return {
             blogs: [],
             BASE_URL: "http://localhost:8081/assets/uploads/",
+            search: '', // เพิ่มฟิลด์ค้นหา
         }
     },
-    async created () {
-        await this.fetchBlogs()
+    created () {
+        this.fetchBlogs()
     },
     methods: {
         logout () {
@@ -83,9 +90,9 @@ export default {
         async refreshData() {
             await this.fetchBlogs()
         },
-        async fetchBlogs() {
+        async fetchBlogs(searchTerm = '') {
             try {
-                const response = await BlogsService.index()
+                const response = await BlogsService.index(searchTerm)
                 // สมมติว่า pictures ถูกเก็บเป็น JSON string หรือชื่อไฟล์คั่นด้วยจุลภาค
                 this.blogs = response.data.map(blog => {
                     let picturesArray = []
@@ -114,9 +121,32 @@ export default {
             const options = { year: 'numeric', month: 'long', day: 'numeric' }
             return new Date(dateStr).toLocaleDateString(undefined, options)
         }
+    },
+    watch: {
+        search: _.debounce(function (value) {
+            const route = {
+                name: 'blogs'
+            }
+            if (this.search !== '') {
+                route.query = {
+                    search: this.search
+                }
+            }
+            console.log('search: ' + this.search)
+            this.$router.push(route)
+        }, 700),
+        '$route.query.search': {
+            immediate: true,
+            async handler (value) { 
+                this.fetchBlogs(value)
+            } 
+        }
     }
 }
 </script>
+
+
+
 
 <style scoped>
 .empty-blog {
@@ -198,7 +228,7 @@ export default {
 .blog-header button {
     padding: 8px 16px;
     margin-right: 10px;
-    background-color: #42b983;
+    background-color: #42b983; /* ปุ่มสร้างบล็อก */
     color: white;
     border: none;
     border-radius: 4px;
@@ -209,8 +239,43 @@ export default {
     background-color: #369870;
 }
 
+/* ปุ่มสีต่างๆ */
+.view-button {
+    background-color: #4CAF50; /* สีเขียว */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #FFC107; /* สีเหลือง */
+    color: black;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.delete-button {
+    background-color: #F44336; /* สีแดง */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.view-button:hover,
+.edit-button:hover,
+.delete-button:hover {
+    opacity: 0.9; /* เปลี่ยนสีเล็กน้อยเมื่อ hover */
+}
+
 /* Clearfix */
 .clearfix {
     clear: both;
 }
 </style>
+
