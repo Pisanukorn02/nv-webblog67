@@ -7,7 +7,6 @@
     <p>Email: {{ user.email }}</p>
     <p>Password: {{ user.password }}</p>
     <p>Status: {{ user.status }}</p>
-    <p>Type: {{ user.type }}</p>
     <p>Created At: {{ user.createdAt }}</p>
   </div>
 </template>

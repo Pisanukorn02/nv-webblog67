@@ -1,77 +1,118 @@
 const { Blog } = require('../models');
+const { Op } = require('sequelize'); // Import Sequelize operators
 
 module.exports = {
-    // get all blog
+    // Get all blogs or search blogs
     async index(req, res) {
         try {
-            const blogs = await Blog.findAll()
-            res.send(blogs)
+            const search = req.query.search;
+            let blogs;
+
+            if (search) {
+                blogs = await Blog.findAll({
+                    where: {
+                        [Op.or]: [
+                            { title: { [Op.like]: `%${search}%` } },
+                            { content: { [Op.like]: `%${search}%` } },
+                            { category: { [Op.like]: `%${search}%` } }
+                        ]
+                    },
+                    order: [['updatedAt', 'DESC']]
+                });
+            } else {
+                blogs = await Blog.findAll({
+                    order: [['updatedAt', 'DESC']]
+                });
+            }
+
+            res.send(blogs);
         } catch (err) {
+            console.error('Error fetching blogs:', err); // Log the error for debugging
             res.status(500).send({
-                error: 'The blogs information was incorrect'
-            })
+                error: 'An error has occurred while fetching the blogs'
+            });
         }
     },
-    // create blog
+
+    // Create a new blog
     async create(req, res) {
-        // res.send(JSON.stringify(req.body))
         try {
-            console.log('Blog create req.body:',req.body)
-            const blog = await Blog.create(req.body)
-            console.log('Blog create blog:',blog)
-            res.send(blog.toJSON())
+            console.log('Blog create req.body:', req.body);
+            const blog = await Blog.create(req.body);
+            console.log('Blog created:', blog);
+            res.send(blog.toJSON());
         } catch (err) {
-            console.log('Blog create err:',err)
+            console.error('Error creating blog:', err); // Log the error for debugging
             res.status(500).send({
-                error: 'Create blog incorrect'
-            })
+                error: 'Failed to create the blog'
+            });
         }
     },
-    // edit blog, suspend, active
+
+    // Update a blog (edit, suspend, activate)
     async put(req, res) {
         try {
-            await Blog.update(req.body, {
-                where: {
-                    id: req.params.blogId
-                }
-            })
-            res.send(req.body)
+            const [updatedRowsCount, updatedRows] = await Blog.update(req.body, {
+                where: { id: req.params.blogId },
+                returning: true, // To get the updated blog back
+                plain: true
+            });
+
+            if (updatedRowsCount === 0) {
+                return res.status(404).send({
+                    error: 'Blog not found'
+                });
+            }
+
+            res.send(updatedRows);
         } catch (err) {
+            console.error('Error updating blog:', err); // Log the error for debugging
             res.status(500).send({
-                error: 'Update blog incorrect'
-            })
+                error: 'Failed to update the blog'
+            });
         }
     },
-    // delete blog
+
+    // Delete a blog
     async remove(req, res) {
         try {
             const blog = await Blog.findOne({
-                where: {
-                    id: req.params.blogId
-                }
-            })
+                where: { id: req.params.blogId }
+            });
+
             if (!blog) {
-                return res.status(403).send({
-                    error: 'The blog information was incorrect'
-                })
+                return res.status(404).send({
+                    error: 'Blog not found'
+                });
             }
-            await blog.destroy()
-            res.send(blog)
+
+            await blog.destroy();
+            res.send(blog);
         } catch (err) {
+            console.error('Error deleting blog:', err); // Log the error for debugging
             res.status(500).send({
-                error: 'The blog information was incorrect'
-            })
+                error: 'Failed to delete the blog'
+            });
         }
     },
-    // get blog by id
+
+    // Get a blog by ID
     async show(req, res) {
         try {
-            const blog = await Blog.findByPk(req.params.blogId)
-            res.send(blog)
+            const blog = await Blog.findByPk(req.params.blogId);
+
+            if (!blog) {
+                return res.status(404).send({
+                    error: 'Blog not found'
+                });
+            }
+
+            res.send(blog);
         } catch (err) {
-            req.status(500).send({
-                error: 'The blog information was incorrect'
-            })
+            console.error('Error fetching blog by ID:', err); // Log the error for debugging
+            res.status(500).send({
+                error: 'An error has occurred while fetching the blog'
+            });
         }
     }
-}
+};

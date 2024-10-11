@@ -2,11 +2,11 @@
     <div>
         <h1>Show Blog</h1>
         <p>id: {{ blog.id }}</p>
-        <p>title: {{ blog.title }}</p>
+        <p>Name : {{ blog.PartName }}</p>
         <p>content: {{ blog.content }}</p>
         <p>category: {{ blog.category }}</p>
-        <p>status: {{ blog.status }}</p>
-        <p>status: {{ blog.PartName }}</p>
+        
+        
 
 
         <p>

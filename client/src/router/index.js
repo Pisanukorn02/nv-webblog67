@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+// นำเข้า component ที่คุณมีอยู่แล้ว
 import UserIndex from '@/components/User/index'
 import UserEdit from '@/components/User/EditUser'
 import UserCreate from '@/components/User/CreateUser'
@@ -15,6 +16,7 @@ import BlogShow from '@/components/Blogs/ShowBlog'
 import BlogEdit from '@/components/Blogs/EditBlog'
 
 import Upload from '@/components/Util/Upload'
+import FrontIndex from '@/components/Blogs/Index' // นำเข้า FrontIndex
 
 Vue.use(Router)
 
@@ -75,6 +77,11 @@ export default new Router({
       path: '/upload',
       name: 'upload',
       component: Upload
+    },
+    {
+      path: '/front',
+      name: 'front',
+      component: FrontIndex // เพิ่มเส้นทางสำหรับ FrontIndex
     },
   ]
 })

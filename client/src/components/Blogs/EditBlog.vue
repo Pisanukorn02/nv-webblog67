@@ -2,7 +2,10 @@
   <div>
     <h1>Edit Blog</h1>
     <form v-on:submit.prevent="editBlog">
-      <p>title: <input type="text" v-model="blog.title" /></p>
+      <div class="form-group">
+        <label for="partName">Part Name:</label>
+        <input type="text" id="partName" v-model="blog.PartName" required />
+      </div>
       <transition name="fade">
         <div class="thumbnail-pic" v-if="blog.thumbnail != 'null'">
           <img :src="BASE_URL + blog.thumbnail" alt="thumbnail" />
@@ -53,8 +56,20 @@
         @blur="onBlur($event)"
         @focus="onFocus($event)"
       />
-      <p>category: <input type="text" v-model="blog.category" /></p>
-      <p>status: <input type="text" v-model="blog.status" /></p>
+      
+      <div class="form-group">
+  <label for="category">Category:</label>
+  <select id="category" v-model="blog.category" required>
+    <option value="">Select a category</option>
+    <option value="Display">Display</option>
+    <option value="Board">Board</option>
+    <option value="Battery">Battery</option>
+  </select>
+</div>
+      <div class="form-group">
+        <label for="Price">Price:</label>
+        <input type="text" id="partName" v-model="blog.Price" required />
+      </div>
       <p>
         <button type="submit">update blog</button>
         <button v-on:click="navigateTo('/blogs')">กลับ</button>
@@ -86,7 +101,7 @@ export default {
       pictures: [],
       pictureIndex: 0,
       blog: {
-        title: "",
+       
         thumbnail: "null",
         pictures: "null",
         content: "",
